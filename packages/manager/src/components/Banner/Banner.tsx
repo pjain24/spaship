@@ -60,10 +60,14 @@ export const Banner = ({ children, backRef, title }: Props): JSX.Element => {
             {crumbs.map(({ href, name }) => (
               <BreadcrumbItem key={href} isActive={asPath === href} className="capitalize">
                 {asPath === href ? (
-                  name
+                  Array.isArray(name) ? (
+                    name.join(' ')
+                  ) : (
+                    name?.replace(/-/g, ' ')
+                  )
                 ) : (
                   <Link href={href}>
-                    <a>{name}</a>
+                    <a>{Array.isArray(name) ? name.join(' ') : name?.replace(/-/g, ' ')}</a>
                   </Link>
                 )}
               </BreadcrumbItem>
