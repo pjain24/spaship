@@ -295,260 +295,267 @@ export const WebPropertyDetailPage = (): JSX.Element => {
                         />
                       </SplitItem>
                     </Split>
-                    <TableComposable aria-label="spa-property-list">
-                      <Thead noWrap>
-                        <Tr>
-                          <Th />
-                          <Th>Name</Th>
-                          <Th textCenter>URL Path</Th>
-                          <Th>Environments</Th>
-                        </Tr>
-                      </Thead>
+                    {paginatedData && paginatedData.length > 0 ? (
+                      <TableComposable aria-label="spa-property-list">
+                        <Thead noWrap>
+                          <Tr>
+                            <Th />
+                            <Th>Name</Th>
+                            <Th textCenter>URL Path</Th>
+                            <Th>Environments</Th>
+                          </Tr>
+                        </Thead>
 
-                      {(spaProperties.isLoading && webProperties.isLoading) ||
-                      (spaProperties.isLoading && isSpaPropertyListEmpty) ? (
-                        <TableRowSkeleton rows={3} columns={4} />
-                      ) : (
-                        spaProperties.isSuccess &&
-                        paginatedData.map((identifier, rowIndex) => (
-                          <Tbody isExpanded={Boolean(isRowExpanded?.[identifier])} key={identifier}>
-                            <Tr isStriped={Boolean(rowIndex % 2)}>
-                              <Td
-                                expand={{
-                                  rowIndex,
-                                  isExpanded: Boolean(isRowExpanded?.[identifier]),
-                                  onToggle: () => onToggleRowExpanded(identifier),
-                                  expandId: 'composable-property-table'
-                                }}
-                              />
-                              <Td style={{ maxWidth: '25ch', wordWrap: 'break-word' }}>
-                                <Link
-                                  href={{
-                                    pathname: '/properties/[propertyIdentifier]/[spaProperty]',
-                                    query: {
-                                      propertyIdentifier,
-                                      spaProperty: identifier,
-                                      initialTab: spaProperties.data[identifier]?.[0]
-                                        ?.isContainerized
-                                        ? 0
-                                        : 1
-                                    }
+                        {(spaProperties.isLoading && webProperties.isLoading) ||
+                        (spaProperties.isLoading && isSpaPropertyListEmpty) ? (
+                          <TableRowSkeleton rows={3} columns={4} />
+                        ) : (
+                          spaProperties.isSuccess &&
+                          paginatedData.map((identifier, rowIndex) => (
+                            <Tbody
+                              isExpanded={Boolean(isRowExpanded?.[identifier])}
+                              key={identifier}
+                            >
+                              <Tr isStriped={Boolean(rowIndex % 2)}>
+                                <Td
+                                  expand={{
+                                    rowIndex,
+                                    isExpanded: Boolean(isRowExpanded?.[identifier]),
+                                    onToggle: () => onToggleRowExpanded(identifier),
+                                    expandId: 'composable-property-table'
                                   }}
-                                >
-                                  {`${spaProperties.data[identifier]?.[0]?.name.slice(
+                                />
+                                <Td style={{ maxWidth: '25ch', wordWrap: 'break-word' }}>
+                                  <Link
+                                    href={{
+                                      pathname: '/properties/[propertyIdentifier]/[spaProperty]',
+                                      query: {
+                                        propertyIdentifier,
+                                        spaProperty: identifier,
+                                        initialTab: spaProperties.data[identifier]?.[0]
+                                          ?.isContainerized
+                                          ? 0
+                                          : 1
+                                      }
+                                    }}
+                                  >
+                                    {`${spaProperties.data[identifier]?.[0]?.name.slice(
+                                      0,
+                                      URL_LENGTH_LIMIT
+                                    )} ${
+                                      spaProperties.data[identifier]?.[0]?.name.length >
+                                      URL_LENGTH_LIMIT
+                                        ? '...'
+                                        : ''
+                                    }`}
+                                  </Link>
+                                </Td>
+                                <Td textCenter style={{ maxWidth: '25ch', wordWrap: 'break-word' }}>
+                                  {`${spaProperties.data[identifier]?.[0]?.path?.slice(
                                     0,
                                     URL_LENGTH_LIMIT
                                   )} ${
-                                    spaProperties.data[identifier]?.[0]?.name.length >
+                                    spaProperties.data[identifier]?.[0]?.path?.length >
                                     URL_LENGTH_LIMIT
                                       ? '...'
                                       : ''
                                   }`}
-                                </Link>
-                              </Td>
-                              <Td textCenter style={{ maxWidth: '25ch', wordWrap: 'break-word' }}>
-                                {`${spaProperties.data[identifier]?.[0]?.path?.slice(
-                                  0,
-                                  URL_LENGTH_LIMIT
-                                )} ${
-                                  spaProperties.data[identifier]?.[0]?.path?.length >
-                                  URL_LENGTH_LIMIT
-                                    ? '...'
-                                    : ''
-                                }`}
-                              </Td>
-                              <Td textCenter style={{ wordWrap: 'break-word' }}>
-                                <Split hasGutter>
-                                  {spaProperties.data[identifier].map(
-                                    ({ _id, env, isContainerized, isGit }) => (
-                                      <SplitItem key={_id} style={{ marginRight: '8px' }}>
-                                        <Label
-                                          icon={isGit && <GithubIcon />}
-                                          color={isContainerized || isGit ? 'cyan' : 'gold'}
-                                          isCompact
-                                        >
-                                          {env}
-                                        </Label>
-                                      </SplitItem>
-                                    )
-                                  )}
-                                </Split>
-                              </Td>
-                            </Tr>
-                            <Tr isExpanded={Boolean(isRowExpanded?.[identifier])}>
-                              <Td colSpan={4} noPadding={false} textCenter>
-                                <ExpandableRowContent>
-                                  <TableComposable aria-label="expandable-table">
-                                    <Thead noWrap>
-                                      <Tr>
-                                        <Th textCenter>Environment Name</Th>
-                                        <Th textCenter>Reference</Th>
-                                        <Th textCenter>Publish Domain</Th>
-                                        <Th textCenter>Router URL</Th>
-                                        <Th textCenter>Updated At</Th>
-                                      </Tr>
-                                    </Thead>
-                                    <Tbody>
-                                      {spaProperties?.data?.[identifier].map(
-                                        ({
-                                          _id,
-                                          env,
-                                          ref,
-                                          isContainerized,
-                                          accessUrl,
-                                          routerUrl,
-                                          updatedAt
-                                        }) => (
-                                          <Tr key={_id}>
-                                            <Td
-                                              textCenter
-                                              style={{ maxWidth: '20ch', wordWrap: 'break-word' }}
-                                            >
-                                              <Label
-                                                color={isContainerized ? 'cyan' : 'gold'}
-                                                isCompact
+                                </Td>
+                                <Td textCenter style={{ wordWrap: 'break-word' }}>
+                                  <Split hasGutter>
+                                    {spaProperties.data[identifier].map(
+                                      ({ _id, env, isContainerized, isGit }) => (
+                                        <SplitItem key={_id} style={{ marginRight: '8px' }}>
+                                          <Label
+                                            icon={isGit && <GithubIcon />}
+                                            color={isContainerized || isGit ? 'cyan' : 'gold'}
+                                            isCompact
+                                          >
+                                            {env}
+                                          </Label>
+                                        </SplitItem>
+                                      )
+                                    )}
+                                  </Split>
+                                </Td>
+                              </Tr>
+                              <Tr isExpanded={Boolean(isRowExpanded?.[identifier])}>
+                                <Td colSpan={4} noPadding={false} textCenter>
+                                  <ExpandableRowContent>
+                                    <TableComposable aria-label="expandable-table">
+                                      <Thead noWrap>
+                                        <Tr>
+                                          <Th textCenter>Environment Name</Th>
+                                          <Th textCenter>Reference</Th>
+                                          <Th textCenter>Publish Domain</Th>
+                                          <Th textCenter>Router URL</Th>
+                                          <Th textCenter>Updated At</Th>
+                                        </Tr>
+                                      </Thead>
+                                      <Tbody>
+                                        {spaProperties?.data?.[identifier].map(
+                                          ({
+                                            _id,
+                                            env,
+                                            ref,
+                                            isContainerized,
+                                            accessUrl,
+                                            routerUrl,
+                                            updatedAt
+                                          }) => (
+                                            <Tr key={_id}>
+                                              <Td
+                                                textCenter
+                                                style={{ maxWidth: '20ch', wordWrap: 'break-word' }}
                                               >
-                                                {env}
-                                              </Label>
-                                            </Td>
-                                            <Td
-                                              textCenter
-                                              style={{ maxWidth: '20ch', wordWrap: 'break-word' }}
-                                            >
-                                              {`${ref.slice(0, URL_LENGTH_LIMIT)} ${
-                                                ref.length > URL_LENGTH_LIMIT ? '...' : ''
-                                              }`}
-                                            </Td>
-                                            <Td
-                                              textCenter
-                                              style={{ maxWidth: '20ch', wordWrap: 'break-word' }}
-                                            >
-                                              <a
-                                                href={`https://${webProperties?.data?.[env]?.url}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
+                                                <Label
+                                                  color={isContainerized ? 'cyan' : 'gold'}
+                                                  isCompact
+                                                >
+                                                  {env}
+                                                </Label>
+                                              </Td>
+                                              <Td
+                                                textCenter
+                                                style={{ maxWidth: '20ch', wordWrap: 'break-word' }}
                                               >
-                                                {`${webProperties?.data?.[env]?.url.slice(
-                                                  0,
-                                                  URL_LENGTH_LIMIT
-                                                )} ${
-                                                  webProperties?.data?.[env]?.url &&
-                                                  webProperties?.data?.[env]?.url.length >
-                                                    URL_LENGTH_LIMIT
-                                                    ? '...'
-                                                    : ''
+                                                {`${ref.slice(0, URL_LENGTH_LIMIT)} ${
+                                                  ref.length > URL_LENGTH_LIMIT ? '...' : ''
                                                 }`}
-                                              </a>
-                                            </Td>
-                                            <Td
-                                              textCenter
-                                              style={{ maxWidth: '20ch', wordWrap: 'break-word' }}
-                                            >
-                                              {routerUrl
-                                                ? routerUrl?.map((router_url: string) => (
-                                                    <div key={router_url}>
-                                                      {router_url === 'NA' ? (
-                                                        <Spinner isSVG diameter="30px" />
-                                                      ) : (
-                                                        <div style={{ textAlign: 'center' }}>
-                                                          <Tooltip
-                                                            className="my-custom-tooltip"
-                                                            content={
-                                                              <div>
-                                                                <a
-                                                                  className="text-decoration-none"
-                                                                  href={router_url}
-                                                                  target="_blank"
-                                                                  rel="noopener noreferrer"
-                                                                >
-                                                                  {router_url}
-                                                                </a>
-                                                              </div>
-                                                            }
-                                                          >
-                                                            <a
-                                                              href={router_url}
-                                                              target="_blank"
-                                                              rel="noopener noreferrer"
-                                                              style={{
-                                                                textDecoration: 'none',
-                                                                marginRight: '8px'
-                                                              }}
+                                              </Td>
+                                              <Td
+                                                textCenter
+                                                style={{ maxWidth: '20ch', wordWrap: 'break-word' }}
+                                              >
+                                                <a
+                                                  href={`https://${webProperties?.data?.[env]?.url}`}
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                >
+                                                  {`${webProperties?.data?.[env]?.url.slice(
+                                                    0,
+                                                    URL_LENGTH_LIMIT
+                                                  )} ${
+                                                    webProperties?.data?.[env]?.url &&
+                                                    webProperties?.data?.[env]?.url.length >
+                                                      URL_LENGTH_LIMIT
+                                                      ? '...'
+                                                      : ''
+                                                  }`}
+                                                </a>
+                                              </Td>
+                                              <Td
+                                                textCenter
+                                                style={{ maxWidth: '20ch', wordWrap: 'break-word' }}
+                                              >
+                                                {routerUrl
+                                                  ? routerUrl?.map((router_url: string) => (
+                                                      <div key={router_url}>
+                                                        {router_url === 'NA' ? (
+                                                          <Spinner isSVG diameter="30px" />
+                                                        ) : (
+                                                          <div style={{ textAlign: 'center' }}>
+                                                            <Tooltip
+                                                              className="my-custom-tooltip"
+                                                              content={
+                                                                <div>
+                                                                  <a
+                                                                    className="text-decoration-none"
+                                                                    href={router_url}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                  >
+                                                                    {router_url}
+                                                                  </a>
+                                                                </div>
+                                                              }
                                                             >
-                                                              {`${router_url.slice(
-                                                                0,
-                                                                URL_LENGTH
-                                                              )} ${
-                                                                router_url.length > URL_LENGTH
-                                                                  ? '...'
-                                                                  : ''
-                                                              }`}
-                                                            </a>
-                                                          </Tooltip>{' '}
-                                                        </div>
-                                                      )}
-                                                    </div>
-                                                  ))
-                                                : accessUrl?.map((access_url: string) => (
-                                                    <div key={access_url}>
-                                                      {access_url === 'NA' ? (
-                                                        <Spinner isSVG diameter="30px" />
-                                                      ) : (
-                                                        <div style={{ textAlign: 'center' }}>
-                                                          <Tooltip
-                                                            className="my-custom-tooltip"
-                                                            content={
-                                                              <div>
-                                                                <a
-                                                                  className="text-decoration-none"
-                                                                  href={access_url}
-                                                                  target="_blank"
-                                                                  rel="noopener noreferrer"
-                                                                >
-                                                                  {access_url}
-                                                                </a>
-                                                              </div>
-                                                            }
-                                                          >
-                                                            <a
-                                                              href={access_url}
-                                                              target="_blank"
-                                                              rel="noopener noreferrer"
-                                                              style={{
-                                                                textDecoration: 'none',
-                                                                marginRight: '8px'
-                                                              }}
+                                                              <a
+                                                                href={router_url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                style={{
+                                                                  textDecoration: 'none',
+                                                                  marginRight: '8px'
+                                                                }}
+                                                              >
+                                                                {`${router_url.slice(
+                                                                  0,
+                                                                  URL_LENGTH
+                                                                )} ${
+                                                                  router_url.length > URL_LENGTH
+                                                                    ? '...'
+                                                                    : ''
+                                                                }`}
+                                                              </a>
+                                                            </Tooltip>{' '}
+                                                          </div>
+                                                        )}
+                                                      </div>
+                                                    ))
+                                                  : accessUrl?.map((access_url: string) => (
+                                                      <div key={access_url}>
+                                                        {access_url === 'NA' ? (
+                                                          <Spinner isSVG diameter="30px" />
+                                                        ) : (
+                                                          <div style={{ textAlign: 'center' }}>
+                                                            <Tooltip
+                                                              className="my-custom-tooltip"
+                                                              content={
+                                                                <div>
+                                                                  <a
+                                                                    className="text-decoration-none"
+                                                                    href={access_url}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                  >
+                                                                    {access_url}
+                                                                  </a>
+                                                                </div>
+                                                              }
                                                             >
-                                                              {`${access_url.slice(
-                                                                0,
-                                                                URL_LENGTH
-                                                              )} ${
-                                                                access_url.length > URL_LENGTH
-                                                                  ? '...'
-                                                                  : ''
-                                                              }`}
-                                                            </a>
-                                                          </Tooltip>{' '}
-                                                        </div>
-                                                      )}
-                                                    </div>
-                                                  ))}
-                                            </Td>
-                                            <Td textCenter>
-                                              {formatDate(updatedAt, 'MMM DD, YYYY - hh:mm:ss A')}
-                                            </Td>
-                                          </Tr>
-                                        )
-                                      )}
-                                    </Tbody>
-                                  </TableComposable>
-                                </ExpandableRowContent>
-                              </Td>
-                            </Tr>
-                          </Tbody>
-                        ))
-                      )}
-                    </TableComposable>
+                                                              <a
+                                                                href={access_url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                style={{
+                                                                  textDecoration: 'none',
+                                                                  marginRight: '8px'
+                                                                }}
+                                                              >
+                                                                {`${access_url.slice(
+                                                                  0,
+                                                                  URL_LENGTH
+                                                                )} ${
+                                                                  access_url.length > URL_LENGTH
+                                                                    ? '...'
+                                                                    : ''
+                                                                }`}
+                                                              </a>
+                                                            </Tooltip>{' '}
+                                                          </div>
+                                                        )}
+                                                      </div>
+                                                    ))}
+                                              </Td>
+                                              <Td textCenter>
+                                                {formatDate(updatedAt, 'MMM DD, YYYY - hh:mm:ss A')}
+                                              </Td>
+                                            </Tr>
+                                          )
+                                        )}
+                                      </Tbody>
+                                    </TableComposable>
+                                  </ExpandableRowContent>
+                                </Td>
+                              </Tr>
+                            </Tbody>
+                          ))
+                        )}
+                      </TableComposable>
+                    ) : (
+                      <p>No data to show!</p>
+                    )}
                   </>
                 )}
               </>
